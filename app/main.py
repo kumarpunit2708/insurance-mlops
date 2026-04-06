@@ -1,29 +1,78 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from src.predict import PredictPipeline
+import logging
+import pickle
+import numpy as np
+import os
 
+# -------------------------------
+# Logging Setup
+# -------------------------------
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# -------------------------------
+# Initialize App
+# -------------------------------
 app = FastAPI()
 
+# -------------------------------
+# Load Model
+# -------------------------------
+MODEL_PATH = os.path.join("artifacts", "model.pkl")
 
-class InsuranceInput(BaseModel):
-    age: int
-    bmi: float
-    children: int
-    sex: str
-    smoker: str
-    region: str
+try:
+    with open(MODEL_PATH, "rb") as f:
+        model = pickle.load(f)
+    logger.info("Model loaded successfully")
+except Exception as e:
+    logger.error(f"Error loading model: {e}")
+    model = None
 
 
+# -------------------------------
+# Home Endpoint
+# -------------------------------
 @app.get("/")
 def home():
-    return {"message": "Insurance API Running 🚀"}
+    return {"message": "Insurance Premium Prediction API is running 🚀"}
 
 
+# -------------------------------
+# Health Check Endpoint
+# -------------------------------
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+
+# -------------------------------
+# Prediction Endpoint
+# -------------------------------
 @app.post("/predict")
-def predict(data: InsuranceInput):
-    input_data = data.dict()
+def predict(data: dict):
+    """
+    Expected input example:
+    {
+        "features": [25, 28.5, 2]
+    }
+    """
 
-    pipeline = PredictPipeline()
-    result = pipeline.predict(input_data)
+    try:
+        logger.info(f"Received input: {data}")
 
-    return {"prediction": result}
+        if model is None:
+            return {"error": "Model not loaded"}
+
+        features = np.array(data["features"]).reshape(1, -1)
+
+        prediction = model.predict(features)
+
+        logger.info(f"Prediction: {prediction[0]}")
+
+        return {
+            "prediction": float(prediction[0])
+        }
+
+    except Exception as e:
+        logger.error(f"Prediction error: {e}")
+        return {"error": str(e)}
