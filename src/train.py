@@ -38,6 +38,7 @@ import mlflow
 import mlflow.sklearn
 from sklearn.metrics import r2_score, mean_absolute_error,mean_squared_error,root_mean_squared_error
 
+mlflow.set_tracking_uri("http://3.238.94.104:5000")
 mlflow.set_experiment("insurance-premium")
 
 with mlflow.start_run():

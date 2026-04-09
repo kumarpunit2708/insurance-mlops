@@ -26,7 +26,13 @@ class PredictionInput(BaseModel):
 # -------------------------------
 # Load Model from MLflow
 # -------------------------------
-MODEL_URI = "models:/insurance-model/1"   # version 1
+import mlflow
+
+mlflow.set_tracking_uri("http://3.238.94.104:5000")
+
+MODEL_URI = "models:/insurance-model/Production"
+model = mlflow.sklearn.load_model(MODEL_URI)
+#MODEL_URI = "models:/insurance-model/1"   # version 1
 
 try:
     model = mlflow.sklearn.load_model(MODEL_URI)

@@ -1,0 +1,23 @@
+artifact_path: file:C:/Users/punit.kumar/Downloads/ML Regression/mlruns/1/models/m-5671ca73450e4016adbee74b0c76f293/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.10
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.11.1
+model_id: m-5671ca73450e4016adbee74b0c76f293
+model_size_bytes: 2361
+model_uuid: m-5671ca73450e4016adbee74b0c76f293
+prompts: null
+run_id: 92f82cd902cf46228a80fd4272ccfa0c
+utc_time_created: '2026-04-09 16:30:24.647788'
