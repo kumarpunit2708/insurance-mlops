@@ -34,15 +34,42 @@ model_pipeline = Pipeline([
     ("model", LinearRegression())
 ])
 
+import mlflow
+import mlflow.sklearn
+from sklearn.metrics import r2_score, mean_absolute_error,mean_squared_error,root_mean_squared_error
 
-model_pipeline.fit(X_train, y_train)
+mlflow.set_experiment("insurance-premium")
 
+with mlflow.start_run():
 
-y_pred = model_pipeline.predict(X_test)
+    # Train model
+    model_pipeline.fit(X_train, y_train)
 
-score = r2_score(y_test, y_pred)
-print("R2 Score:", score)
+    # Prediction
+    y_pred = model_pipeline.predict(X_test)
 
+    # Metric
+    r2 = r2_score(y_test, y_pred)
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = root_mean_squared_error(y_test,y_pred)
+
+    # Log metrics
+    mlflow.log_metric("r2_score", r2)
+    mlflow.log_metric("MAE", mae)
+    mlflow.log_metric("MSE", mse)
+    mlflow.log_metric("RMSE", rmse)
+
+    # Log model
+    mlflow.sklearn.log_model(
+    sk_model=model_pipeline,
+    artifact_path="model",
+    registered_model_name="insurance-model"
+)
+    print("R2 Score:", r2)
+    print("MAE:", mae)
+    print("MSE:", mse)
+    print("RMSE:", rmse)
 
 os.makedirs("artifacts", exist_ok=True)
 

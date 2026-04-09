@@ -1,78 +1,62 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 import logging
-import pickle
 import numpy as np
-import os
+import mlflow.sklearn
 
 # -------------------------------
-# Logging Setup
+# Logging
 # -------------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # -------------------------------
-# Initialize App
+# App
 # -------------------------------
 app = FastAPI()
 
 # -------------------------------
-# Load Model
+# Input Schema
 # -------------------------------
-MODEL_PATH = os.path.join("artifacts", "model.pkl")
+class PredictionInput(BaseModel):
+    age: int
+    bmi: float
+    children: int
+
+# -------------------------------
+# Load Model from MLflow
+# -------------------------------
+MODEL_URI = "models:/insurance-model/1"   # version 1
 
 try:
-    with open(MODEL_PATH, "rb") as f:
-        model = pickle.load(f)
-    logger.info("Model loaded successfully")
+    model = mlflow.sklearn.load_model(MODEL_URI)
+    logger.info("Model loaded from MLflow")
 except Exception as e:
     logger.error(f"Error loading model: {e}")
     model = None
 
 
 # -------------------------------
-# Home Endpoint
+# Routes
 # -------------------------------
 @app.get("/")
 def home():
-    return {"message": "Insurance Premium Prediction API is running 🚀"}
+    return {"message": "Insurance API running 🚀"}
 
-
-# -------------------------------
-# Health Check Endpoint
-# -------------------------------
 @app.get("/health")
 def health():
     return {"status": "healthy"}
 
-
-# -------------------------------
-# Prediction Endpoint
-# -------------------------------
 @app.post("/predict")
-def predict(data: dict):
-    """
-    Expected input example:
-    {
-        "features": [25, 28.5, 2]
-    }
-    """
-
+def predict(data: PredictionInput):
     try:
-        logger.info(f"Received input: {data}")
-
         if model is None:
             return {"error": "Model not loaded"}
 
-        features = np.array(data["features"]).reshape(1, -1)
-
+        features = np.array([[data.age, data.bmi, data.children]])
         prediction = model.predict(features)
 
-        logger.info(f"Prediction: {prediction[0]}")
-
-        return {
-            "prediction": float(prediction[0])
-        }
+        return {"prediction": float(prediction[0])}
 
     except Exception as e:
-        logger.error(f"Prediction error: {e}")
         return {"error": str(e)}
