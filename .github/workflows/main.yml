@@ -33,4 +33,4 @@ jobs:
             docker stop insurance-container || true
             docker rm insurance-container || true
             docker ps -q --filter "publish=8000" | xargs -r docker stop
-            docker run -d -p 8000:8000 --name insurance-container ${{ secrets.DOCKER_USERNAME }}/insurance-app
+            docker run -d -p 8000:8000 --restart always --name insurance-container ${{ secrets.DOCKER_USERNAME }}/insurance-app
