@@ -3,3 +3,6 @@ pandas
 uvicorn
 scikit_learn
 fastapi
+mlflow
+sqlalchemy
+psycopg2-binary
