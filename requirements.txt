@@ -6,4 +6,3 @@ fastapi
 mlflow
 sqlalchemy
 psycopg2-binary
-os
